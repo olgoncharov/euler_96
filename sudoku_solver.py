@@ -16,7 +16,9 @@ class Cell:
         if value is None:
             self.value = 0
         else:
-            if value not in range(10):
+            if not isinstance(value, int):
+                raise TypeError('Значением ячейки может быть только целое число')
+            elif value not in range(10):
                 raise ValueError('Значение ячейки должно находится в интервале 0-9')
             self.value = int(value)
 
