@@ -71,3 +71,15 @@ class TestSudoku:
     def test_square(self, init_sudoku, idx, expected):
         sudoku = Sudoku(init_sudoku)
         assert [cell.value for cell in sudoku.square(idx)] == expected
+
+    def test_set_value(self, init_sudoku):
+        sudoku = Sudoku(init_sudoku)
+        sudoku.set_value(0, 0, 4)
+        assert sudoku.cells[0][0].value == 4
+        assert sudoku.cells[0][0].choices == set()
+        assert sudoku.cells[0][1].choices == {5, 7, 8}
+        assert sudoku.cells[0][3].choices == {9}
+        assert sudoku.cells[3][0].choices == {3, 5}
+        assert sudoku.cells[8][0].choices == {6}
+        assert sudoku.cells[1][1].choices == {2, 6, 7, 8}
+        assert sudoku.cells[1][2].choices == {7}

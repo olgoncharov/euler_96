@@ -53,8 +53,6 @@ class Sudoku:
 
     def column(self, idx):
         """Возвращает итератор, предоставляющий доступ к ячейкам столбца.
-
-
         :param idx: integer
             Индекс столбца (0 - 8).
         """
@@ -86,6 +84,32 @@ class Sudoku:
             for cell in row[start_col : start_col + 3]:
                 yield cell
 
+    def set_value(self, idx_row, idx_col, value):
+        """
+        Устанавливает значение ячейки на пересечении заданной строки и колонки.
+        :param idx_row: integer
+            Индекс строки (0 - 8).
+        :param idx_col: integer
+            Индекс колонки (0 - 8).
+        :param value: integer
+            Устанавливаемое значение ячейки (1 - 9)
+        """
+
+        self.cells[idx_row][idx_col].value = value
+        self.cells[idx_row][idx_col].choices = set()
+
+        Sudoku.exclude_from_choices(self.cells[idx_row], value)
+        Sudoku.exclude_from_choices(self.column(idx_col), value)
+
+        idx_square = (idx_row // 3) * 3 + idx_col // 3
+        Sudoku.exclude_from_choices(self.square(idx_square), value)
+
+
+    @staticmethod
+    def exclude_from_choices(cells, value):
+        for cell in cells:
+            if value in cell.choices:
+                cell.choices.remove(value)
 
 class Cell:
     """
