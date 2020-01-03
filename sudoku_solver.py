@@ -20,6 +20,18 @@ class Sudoku:
 
         self._update_all_choices()
 
+    def __repr__(self):
+        result = '---+' * 8 + '---\n'
+        for i in range(3):
+            for idx_row in range(3 * i, 3 * i + 3):
+                row = [str(cell.value) if cell.value != 0 else 'X' for cell in self.cells[idx_row]]
+                result += ' {}   {}   {} | {}   {}   {} | {}   {}   {} \n'.format(*row)
+                if idx_row != 3 * i + 2:
+                    result += '{}+{}+{}\n'.format(' ' * 11, ' ' * 11, ' ' * 11)
+            result += '---+' * 8 + '---\n'
+
+        return result
+
     def _update_all_choices(self):
         """Для каждой ячейки судоку обновляет перечень возможных вариантов для заполнения."""
 
