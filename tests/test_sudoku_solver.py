@@ -1,3 +1,5 @@
+from typing import Set, Any
+
 import pytest
 from sudoku_solver import Cell, Sudoku
 
@@ -137,3 +139,13 @@ class TestSudoku:
         assert sudoku.cells[5][4].choices == {2, 5}
         assert sudoku.cells[3][6].choices == {5, 8}
         assert sudoku.cells[3][7].choices == {1, 2}
+
+    def test_solve_hidden_singles(self, init_sudoku, init_sudoku_solution):
+        sudoku = Sudoku(init_sudoku)
+        sudoku.solve_hidden_singles()
+
+        empty_set = set()
+        for i in range(9):
+            for j in range(9):
+                assert sudoku.cells[i][j].value == init_sudoku_solution[i][j], f'({i}, {j})'
+                assert sudoku.cells[i][j].choices == empty_set

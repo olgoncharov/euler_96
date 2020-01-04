@@ -135,6 +135,18 @@ class Sudoku:
                             updated_cells += 1
                             cell.choices -= pair
 
+    def solve_hidden_singles(self):
+        """Находит и заполняет скрытые одиночки."""
+        solved_cells = 1
+
+        while solved_cells:
+            solved_cells = 0
+            for house in self.houses():
+                for cell in house:
+                    if len(cell.choices) == 1:
+                        self.set_value(cell.idx_row, cell.idx_col, cell.choices.pop())
+                        solved_cells += 1
+
 class Cell:
     """
     Класс ячейки судоку.
