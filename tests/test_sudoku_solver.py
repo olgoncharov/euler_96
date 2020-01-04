@@ -142,10 +142,27 @@ class TestSudoku:
 
     def test_solve_lone_singles(self, init_sudoku, init_sudoku_solution):
         sudoku = Sudoku(init_sudoku)
-        sudoku.solve_hidden_singles()
+        sudoku.solve_lone_singles()
 
         empty_set = set()
         for i in range(9):
             for j in range(9):
                 assert sudoku.cells[i][j].value == init_sudoku_solution[i][j], f'({i}, {j})'
                 assert sudoku.cells[i][j].choices == empty_set
+
+    def test_solve_hidden_singles(self):
+
+        sudoku = Sudoku([
+            [0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 2, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 6, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 8, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 2, 0, 0, 0]
+        ])
+
+        sudoku.solve_hidden_singles()
+        assert sudoku.cells[4][4].value == 2

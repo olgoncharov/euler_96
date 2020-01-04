@@ -147,6 +147,25 @@ class Sudoku:
                         self.set_value(cell.idx_row, cell.idx_col, cell.choices.pop())
                         solved_cells += 1
 
+    def solve_hidden_singles(self):
+
+        solved_cells = 1
+
+        while solved_cells:
+            solved_cells = 0
+            for cells in self.houses():
+                for i in range(9):
+                    reminder_set = cells[i].choices.copy()
+                    for j in range(9):
+                        if j == i:
+                            continue
+                        reminder_set -= cells[j].choices
+
+                    if len(reminder_set) == 1:
+                        self.set_value(cells[i].idx_row, cells[i].idx_col, reminder_set.pop())
+                        solved_cells += 1
+
+
 class Cell:
     """
     Класс ячейки судоку.
