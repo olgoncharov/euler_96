@@ -35,7 +35,6 @@ class Sudoku:
                                                    column_choices[idx_col] & \
                                                    square_choices[idx_square]
 
-
     def __repr__(self):
         result = '---+' * 8 + '---\n'
         for i in range(3):
@@ -47,7 +46,6 @@ class Sudoku:
             result += '---+' * 8 + '---\n'
 
         return result
-
 
     def column(self, idx):
         """Возвращает итератор, предоставляющий доступ к ячейкам столбца.
@@ -78,9 +76,24 @@ class Sudoku:
 
         start_col = 3 * (idx % 3)
 
-        for row in self.cells[start_row : start_row + 3]:
-            for cell in row[start_col : start_col + 3]:
+        for row in self.cells[start_row:start_row + 3]:
+            for cell in row[start_col:start_col + 3]:
                 yield cell
+
+    def houses(self):
+        """
+        Возвращает итератор для обхода всех блоков судоку - сначала всех строк, потом всех столбцов,
+        потом все квадратов.
+        """
+        for row in self.cells:
+            for cell in row:
+                yield cell
+
+        for idx in range(9):
+            yield from self.column(idx)
+
+        for idx in range(9):
+            yield from self.square(idx)
 
     def set_value(self, idx_row, idx_col, value):
         """
