@@ -140,7 +140,7 @@ class TestSudoku:
         assert sudoku.cells[3][6].choices == {5, 8}
         assert sudoku.cells[3][7].choices == {1, 2}
 
-    def test_solve_hidden_singles(self, init_sudoku, init_sudoku_solution):
+    def test_solve_lone_singles(self, init_sudoku, init_sudoku_solution):
         sudoku = Sudoku(init_sudoku)
         sudoku.solve_hidden_singles()
 

@@ -135,8 +135,8 @@ class Sudoku:
                             updated_cells += 1
                             cell.choices -= pair
 
-    def solve_hidden_singles(self):
-        """Находит и заполняет скрытые одиночки."""
+    def solve_lone_singles(self):
+        """Находит и заполняет голые одиночки."""
         solved_cells = 1
 
         while solved_cells:
