@@ -125,7 +125,7 @@ class TestSudoku:
         assert sudoku.cells[0][1].choices == {1, 6}
         assert sudoku.cells[0][2].choices == {1, 6}
         assert sudoku.cells[0][3].choices == {2, 5}
-        assert sudoku.cells[0][4].choices == {2, 5, 7}
+        assert sudoku.cells[0][4].choices == {7}
         assert sudoku.cells[0][5].choices == {2, 5, 7}
         assert sudoku.cells[1][0].choices == {7}
         assert sudoku.cells[2][0].choices == {8}

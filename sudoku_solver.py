@@ -114,20 +114,26 @@ class Sudoku:
 
     def solve_naked_pairs(self):
         """Находит голые пары и обновляет перечень кандидатов в ячейках."""
-        for house in self.houses():
-            pairs = [cell.choices for cell in house if len(cell.choices) == 2]
-            naked_pairs = []
 
-            for i in range(len(pairs)):
-                for j in range(i + 1, len(pairs)):
-                    if pairs[i] == pairs[j]:
-                        naked_pairs.append(pairs[i])
-                        break
+        updated_cells = 1
 
-            for cell in house:
-                for pair in naked_pairs:
-                    if cell.choices != pair:
-                        cell.choices -= pair
+        while updated_cells:
+            updated_cells = 0
+            for house in self.houses():
+                pairs = [cell.choices for cell in house if len(cell.choices) == 2]
+                naked_pairs = []
+
+                for i in range(len(pairs)):
+                    for j in range(i + 1, len(pairs)):
+                        if pairs[i] == pairs[j]:
+                            naked_pairs.append(pairs[i])
+                            break
+
+                for cell in house:
+                    for pair in naked_pairs:
+                        if cell.choices != pair and not cell.choices.isdisjoint(pair):
+                            updated_cells += 1
+                            cell.choices -= pair
 
 class Cell:
     """
