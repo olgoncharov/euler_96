@@ -168,3 +168,22 @@ class TestSudoku:
 
         sudoku.solve_hidden_singles()
         assert sudoku.cells[4][4].value == 2
+
+    def test_solve_hidden_pairs(self):
+
+        sudoku = Sudoku([
+            [0, 6, 0, 3, 9, 0, 1, 0, 0],
+            [0, 0, 3, 1, 5, 0, 0, 9, 0],
+            [1, 9, 0, 4, 2, 6, 3, 0, 0],
+            [8, 3, 0, 5, 7, 9, 4, 1, 0],
+            [9, 0, 0, 0, 6, 1, 0, 0, 0],
+            [0, 5, 1, 0, 4, 3, 0, 0, 9],
+            [4, 1, 9, 6, 3, 5, 8, 2, 7],
+            [0, 2, 0, 9, 8, 4, 5, 0, 1],
+            [0, 8, 0, 7, 1, 2, 9, 4, 0]
+        ])
+
+        sudoku.solve_hidden_pairs()
+
+        assert sudoku.cells[4][7].choices == {3, 5}
+        assert sudoku.cells[4][8].choices == {3, 5}

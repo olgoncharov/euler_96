@@ -1,3 +1,4 @@
+import collections
 
 class Sudoku:
     """
@@ -138,6 +139,32 @@ class Sudoku:
                             updated_cells += 1
                             cell.choices -= pair
 
+    def solve_hidden_pairs(self):
+        """Находит скрытые пары и обновляет перечень кандидатов в ячейках."""
+        updated_cells = 1
+
+        while updated_cells:
+            updated_cells = 0
+            for cells in self.houses():
+                counter_pairs = collections.Counter()
+                counter_digits = collections.Counter()
+                for cell in cells:
+                    ls_choices = list(cell.choices)
+                    for i in range(len(ls_choices)):
+                        counter_digits[ls_choices[i]] += 1
+                        for j in range(i + 1, len(ls_choices)):
+                            counter_pairs[(ls_choices[i], ls_choices[j])] += 1
+
+                hidden_pairs = [set(key) for key, value in counter_pairs.items() if value == 2 and
+                                counter_digits[key[0]] == 2 and counter_digits[key[1]] == 2]
+
+                for cell in cells:
+                    for pair in hidden_pairs:
+                        if len(cell.choices) > 2 and pair <= cell.choices:
+                            cell.choices = cell.choices & pair
+                            updated_cells += 1
+
+
     def solve_lone_singles(self):
         """Находит и заполняет голые одиночки."""
         solved_cells = 1
@@ -167,6 +194,26 @@ class Sudoku:
                     if len(reminder_set) == 1:
                         self.set_value(cells[i].idx_row, cells[i].idx_col, reminder_set.pop())
                         solved_cells += 1
+
+    def solve(self):
+        """Решает судоку."""
+        solved = 1
+
+        while solved:
+            unsolved_before = self.unsolved_cells
+
+            self.solve_naked_pairs()
+            self.solve_lone_singles()
+            if self.unsolved_cells == 0:
+                break
+
+            self.solve_hidden_singles()
+            if self.unsolved_cells == 0:
+                break
+
+            self.solve_hidden_pairs()
+
+            solved = unsolved_before - self.unsolved_cells
 
 
 class Cell:
