@@ -12,6 +12,7 @@ class Sudoku:
     def __init__(self, content_matrix):
 
         self.cells = []
+        self.unsolved_cells = 0
 
         for i in range(9):
             self.cells.append([])
@@ -26,6 +27,7 @@ class Sudoku:
         for row in self.cells:
             for cell in row:
                 if cell.value == 0:
+                    self.unsolved_cells += 1
                     cell.choices = rows_choices[cell.idx_row] & \
                                    column_choices[cell.idx_col] & \
                                    square_choices[cell.idx_square]
@@ -103,6 +105,7 @@ class Sudoku:
 
         self.cells[idx_row][idx_col].value = value
         self.cells[idx_row][idx_col].choices = set()
+        self.unsolved_cells -= 1
         idx_square = (idx_row // 3) * 3 + idx_col // 3
 
         adjoined_cells = self.cells[idx_row] + [cell for cell in self.column(idx_col)] + \

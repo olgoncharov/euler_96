@@ -64,6 +64,7 @@ class TestSudoku:
 
     def test_init(self, init_sudoku, init_sudoku_choices):
         sudoku = Sudoku(init_sudoku)
+        assert sudoku.unsolved_cells == 49
         for i in range(9):
             for j in range(9):
                 assert isinstance(sudoku.cells[i][j], Cell)
@@ -83,6 +84,7 @@ class TestSudoku:
     def test_set_value(self, init_sudoku):
         sudoku = Sudoku(init_sudoku)
         sudoku.set_value(0, 0, 4)
+        assert sudoku.unsolved_cells == 48
         assert sudoku.cells[0][0].value == 4
         assert sudoku.cells[0][0].choices == set()
         assert sudoku.cells[0][1].choices == {5, 7, 8}
