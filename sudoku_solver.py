@@ -18,7 +18,23 @@ class Sudoku:
             for value in row:
                 self.cells[-1].append(Cell(value))
 
-        self._update_all_choices()
+        full_set = set(range(1, 10))
+        rows_choices = [full_set - {cell.value for cell in row if cell.value != 0} for row in self.cells]
+        column_choices = [full_set - {cell.value for cell in self.column(idx) if cell.value != 0} for idx in range(9)]
+        square_choices = [full_set - {cell.value for cell in self.square(idx) if cell.value != 0} for idx in range(9)]
+
+        for i in range(3):
+            for idx_row in range(3 * i, 3 * i + 3):
+                row = self.cells[idx_row]
+                for j in range(3):
+                    for idx_col in range(3 * j, 3 * j + 3):
+                        idx_square = i * 3 + j
+                        cell = row[idx_col]
+                        if cell.value == 0:
+                            cell.choices = rows_choices[idx_row] & \
+                                                   column_choices[idx_col] & \
+                                                   square_choices[idx_square]
+
 
     def __repr__(self):
         result = '---+' * 8 + '---\n'
@@ -32,36 +48,6 @@ class Sudoku:
 
         return result
 
-    def _update_all_choices(self):
-        """Для каждой ячейки судоку обновляет перечень возможных вариантов для заполнения."""
-
-        full_set = set(range(1, 10))
-        rows_choices = []
-        for row in self.cells:
-            filled = {cell.value for cell in row if cell.value != 0}
-            rows_choices.append(full_set - filled)
-
-        column_choices = []
-        for i in range(9):
-            filled = {cell.value for cell in self.column(i) if cell.value != 0}
-            column_choices.append(full_set - filled)
-
-        square_choices = []
-        for i in range(9):
-            filled = {cell.value for cell in self.square(i) if cell.value != 0}
-            square_choices.append(full_set - filled)
-
-        for i in range(3):
-            for idx_row in range(3 * i, 3 * i + 3):
-                row = self.cells[idx_row]
-                for j in range(3):
-                    for idx_col in range(3 * j, 3 * j + 3):
-                        idx_square = i * 3 + j
-                        cell = row[idx_col]
-                        if cell.value == 0:
-                            cell.choices = rows_choices[idx_row] & \
-                                                   column_choices[idx_col] & \
-                                                   square_choices[idx_square]
 
     def column(self, idx):
         """Возвращает итератор, предоставляющий доступ к ячейкам столбца.
@@ -109,19 +95,15 @@ class Sudoku:
 
         self.cells[idx_row][idx_col].value = value
         self.cells[idx_row][idx_col].choices = set()
-
-        Sudoku.exclude_from_choices(self.cells[idx_row], value)
-        Sudoku.exclude_from_choices(self.column(idx_col), value)
-
         idx_square = (idx_row // 3) * 3 + idx_col // 3
-        Sudoku.exclude_from_choices(self.square(idx_square), value)
 
+        adjoined_cells = self.cells[idx_row] + [cell for cell in self.column(idx_col)] + \
+                         [cell for cell in self.square(idx_square)]
 
-    @staticmethod
-    def exclude_from_choices(cells, value):
-        for cell in cells:
+        for cell in adjoined_cells:
             if value in cell.choices:
                 cell.choices.remove(value)
+
 
 class Cell:
     """
