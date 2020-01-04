@@ -7,17 +7,23 @@ class TestCell:
         result = Cell()
         assert result.value == 0
         assert result.choices == full_choices
+        assert result.idx_row == 0
+        assert result.idx_col == 0
+        assert result.idx_square == 0
 
     def test_init_zero(self, full_choices):
         result = Cell(0)
         assert result.value == 0
         assert result.choices == full_choices
 
-    @pytest.mark.parametrize('value', [1, 5, 9])
-    def test_init_valid(self, value):
-        result = Cell(value)
+    @pytest.mark.parametrize('value, idx_row, idx_col, idx_square', [(1, 0, 1, 0), (5, 4, 4, 4), (9, 6, 1, 6)])
+    def test_init_valid(self, value, idx_row, idx_col, idx_square):
+        result = Cell(value, idx_row, idx_col)
         assert result.value == value
         assert result.choices == set()
+        assert result.idx_row == idx_row
+        assert result.idx_col == idx_col
+        assert result.idx_square == idx_square
 
     @pytest.mark.parametrize('value', [-1, 10, 20])
     def test_init_invalid_int(self, value):
@@ -83,3 +89,51 @@ class TestSudoku:
         assert sudoku.cells[8][0].choices == {6}
         assert sudoku.cells[1][1].choices == {2, 6, 7, 8}
         assert sudoku.cells[1][2].choices == {7}
+
+    def test_solve_naked_pairs(self):
+
+        sudoku = Sudoku([
+            [4, 0, 0, 0, 0, 0, 9, 3, 8],
+            [0, 3, 2, 0, 9, 4, 1, 0, 0],
+            [0, 9, 5, 3, 0, 0, 2, 4, 0],
+            [3, 7, 0, 6, 0, 9, 0, 0, 4],
+            [5, 2, 9, 0, 0, 1, 6, 7, 3],
+            [6, 0, 4, 7, 0, 3, 0, 9, 0],
+            [9, 5, 7, 0, 0, 8, 3, 0, 0],
+            [0, 0, 3, 9, 0, 0, 4, 0, 0],
+            [2, 4, 0, 0, 3, 0, 7, 0, 9]
+        ])
+
+        assert sudoku.cells[0][1].choices == {1, 6}
+        assert sudoku.cells[0][2].choices == {1, 6}
+        assert sudoku.cells[0][3].choices == {1, 2, 5}
+        assert sudoku.cells[0][4].choices == {1, 2, 5, 6, 7}
+        assert sudoku.cells[0][5].choices == {2, 5, 6, 7}
+        assert sudoku.cells[1][0].choices == {7, 8}
+        assert sudoku.cells[2][0].choices == {1, 7, 8}
+        assert sudoku.cells[2][4].choices == {1, 6, 7, 8}
+        assert sudoku.cells[2][5].choices == {6, 7}
+        assert sudoku.cells[2][8].choices == {6, 7}
+        assert sudoku.cells[3][2].choices == {1, 8}
+        assert sudoku.cells[3][4].choices == {2, 5, 8}
+        assert sudoku.cells[5][4].choices == {2, 5, 8}
+        assert sudoku.cells[3][6].choices == {5, 8}
+        assert sudoku.cells[3][7].choices == {1, 2, 5, 8}
+
+        sudoku.solve_naked_pairs()
+
+        assert sudoku.cells[0][1].choices == {1, 6}
+        assert sudoku.cells[0][2].choices == {1, 6}
+        assert sudoku.cells[0][3].choices == {2, 5}
+        assert sudoku.cells[0][4].choices == {2, 5, 7}
+        assert sudoku.cells[0][5].choices == {2, 5, 7}
+        assert sudoku.cells[1][0].choices == {7}
+        assert sudoku.cells[2][0].choices == {8}
+        assert sudoku.cells[2][4].choices == {1, 8}
+        assert sudoku.cells[2][5].choices == {6, 7}
+        assert sudoku.cells[2][8].choices == {6, 7}
+        assert sudoku.cells[3][2].choices == {1, 8}
+        assert sudoku.cells[3][4].choices == {2, 5}
+        assert sudoku.cells[5][4].choices == {2, 5}
+        assert sudoku.cells[3][6].choices == {5, 8}
+        assert sudoku.cells[3][7].choices == {1, 2}

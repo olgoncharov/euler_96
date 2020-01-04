@@ -13,27 +13,22 @@ class Sudoku:
 
         self.cells = []
 
-        for row in content_matrix:
+        for i in range(9):
             self.cells.append([])
-            for value in row:
-                self.cells[-1].append(Cell(value))
+            for j in range(9):
+                self.cells[-1].append(Cell(content_matrix[i][j], i, j))
 
         full_set = set(range(1, 10))
         rows_choices = [full_set - {cell.value for cell in row if cell.value != 0} for row in self.cells]
         column_choices = [full_set - {cell.value for cell in self.column(idx) if cell.value != 0} for idx in range(9)]
         square_choices = [full_set - {cell.value for cell in self.square(idx) if cell.value != 0} for idx in range(9)]
 
-        for i in range(3):
-            for idx_row in range(3 * i, 3 * i + 3):
-                row = self.cells[idx_row]
-                for j in range(3):
-                    for idx_col in range(3 * j, 3 * j + 3):
-                        idx_square = i * 3 + j
-                        cell = row[idx_col]
-                        if cell.value == 0:
-                            cell.choices = rows_choices[idx_row] & \
-                                                   column_choices[idx_col] & \
-                                                   square_choices[idx_square]
+        for row in self.cells:
+            for cell in row:
+                if cell.value == 0:
+                    cell.choices = rows_choices[cell.idx_row] & \
+                                   column_choices[cell.idx_col] & \
+                                   square_choices[cell.idx_square]
 
     def __repr__(self):
         result = '---+' * 8 + '---\n'
@@ -48,19 +43,18 @@ class Sudoku:
         return result
 
     def column(self, idx):
-        """Возвращает итератор, предоставляющий доступ к ячейкам столбца.
+        """Возвращает ячейки столбца.
         :param idx: integer
             Индекс столбца (0 - 8).
         """
         if idx not in range(9):
             raise ValueError
 
-        for row in self.cells:
-            yield row[idx]
+        return [row[idx] for row in self.cells]
 
     def square(self, idx):
         """
-        Возвращает итератор, предоставляющий доступ к ячейкам квадрата.
+        Возвращает ячейки квадрата.
         :param idx: integer
             Индекс квадрата (0 - 8).
         """
@@ -76,24 +70,25 @@ class Sudoku:
 
         start_col = 3 * (idx % 3)
 
+        result = []
         for row in self.cells[start_row:start_row + 3]:
             for cell in row[start_col:start_col + 3]:
-                yield cell
+                result.append(cell)
+
+        return result
 
     def houses(self):
         """
-        Возвращает итератор для обхода всех блоков судоку - сначала всех строк, потом всех столбцов,
-        потом все квадратов.
+        Генератор для обхода всех блоков судоку - сначала всех строк, потом всех столбцов, потом все квадратов.
         """
         for row in self.cells:
-            for cell in row:
-                yield cell
+            yield row
 
         for idx in range(9):
-            yield from self.column(idx)
+            yield self.column(idx)
 
         for idx in range(9):
-            yield from self.square(idx)
+            yield self.square(idx)
 
     def set_value(self, idx_row, idx_col, value):
         """
@@ -117,6 +112,22 @@ class Sudoku:
             if value in cell.choices:
                 cell.choices.remove(value)
 
+    def solve_naked_pairs(self):
+        """Находит голые пары и обновляет перечень кандидатов в ячейках."""
+        for house in self.houses():
+            pairs = [cell.choices for cell in house if len(cell.choices) == 2]
+            naked_pairs = []
+
+            for i in range(len(pairs)):
+                for j in range(i + 1, len(pairs)):
+                    if pairs[i] == pairs[j]:
+                        naked_pairs.append(pairs[i])
+                        break
+
+            for cell in house:
+                for pair in naked_pairs:
+                    if cell.choices != pair:
+                        cell.choices -= pair
 
 class Cell:
     """
@@ -129,8 +140,14 @@ class Cell:
     choices: set
         Содержит перечень возможных значений для заполнения в ячейке. Если ячейка разгадана, то содержит пустое
         множество.
+    idx_row: integer
+        Индекс строки судоку, которой принадлежит ячейка.
+    idx_col: integer
+        Индекс столбца судоку, которому принадлежит ячейка.
+    idx_square: integer
+        Индекс квадрата судоку, которому принадлежит ячейка.
     """
-    def __init__(self, value=None):
+    def __init__(self, value=None, idx_row=0, idx_col=0):
 
         if value is None:
             self.value = 0
@@ -145,3 +162,7 @@ class Cell:
             self.choices = set()
         else:
             self.choices = set(range(1, 10))
+
+        self.idx_row = idx_row
+        self.idx_col = idx_col
+        self.idx_square = (idx_row // 3) * 3 + idx_col // 3
