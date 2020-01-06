@@ -166,7 +166,7 @@ class Sudoku:
                             updated_cells += 1
 
 
-    def solve_lone_singles(self):
+    def solve_naked_singles(self):
         """Находит и заполняет голые одиночки."""
         solved_cells = 1
 
@@ -360,7 +360,7 @@ class Sudoku:
             self.solve_intersection_removal()
             self.solve_x_wing()
 
-            self.solve_lone_singles()
+            self.solve_naked_singles()
             if self.unsolved_cells == 0:
                 break
 
