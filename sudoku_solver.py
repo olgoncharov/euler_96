@@ -1,4 +1,5 @@
 import collections
+import copy
 
 class Sudoku:
     """
@@ -195,6 +196,114 @@ class Sudoku:
                         self.set_value(cells[i].idx_row, cells[i].idx_col, reminder_set.pop())
                         solved_cells += 1
 
+    def solve_intersection_removal(self):
+
+        solved = 1
+
+        while solved:
+            solved = 0
+
+            # 1. Обходим квадраты
+            for idx in range(9):
+                cells = self.square(idx)
+
+                rows_choices = [set(), set(), set()]
+                cols_choices = [set(), set(), set()]
+
+                min_row = cells[0].idx_row
+                min_col = cells[0].idx_col
+
+                for cell in cells:
+                    rows_choices[cell.idx_row - min_row] |= cell.choices
+                    cols_choices[cell.idx_col - min_col] |= cell.choices
+
+                rows_unique = copy.deepcopy(rows_choices)
+                cols_unique = copy.deepcopy(cols_choices)
+
+                for i in range(3):
+                    for j in range(3):
+                        if i == j:
+                            continue
+                        rows_unique[i] -= rows_choices[j]
+                        cols_unique[i] -= cols_choices[j]
+
+                for i in range(3):
+                    while len(rows_unique[i]) > 0:
+                        value = rows_unique[i].pop()
+                        idx_row = min_row + i
+                        for c in self.cells[idx_row]:
+                            if c.idx_square != idx and value in c.choices:
+                                c.choices.remove(value)
+                                solved += 1
+
+                    while len(cols_unique[i]) > 0:
+                        value = cols_unique[i].pop()
+                        idx_col = min_col + i
+                        for c in self.column(idx_col):
+                            if c.idx_square != idx and value in c.choices:
+                                c.choices.remove(value)
+                                solved += 1
+
+            # Обходим строки
+            for idx in range(9):
+                square_choices = [set(), set(), set()]
+                min_square = self.cells[idx][0].idx_square
+
+                for cell in self.cells[idx]:
+                    square_choices[cell.idx_square - min_square] |= cell.choices
+
+                square_unique = copy.deepcopy(square_choices)
+                for i in range(3):
+                    for j in range(3):
+                        if i == j:
+                            continue
+                        square_unique[i] -= square_choices[j]
+
+                for i in range(3):
+                    while len(square_unique[i]) > 0:
+                        value = square_unique[i].pop()
+                        idx_square = min_square + i
+                        for c in self.square(idx_square):
+                            if c.idx_row != idx and value in c.choices:
+                                c.choices.remove(value)
+                                solved += 1
+
+            # Обходим столбцы
+            for idx in range(9):
+                square_choices = [set(), set(), set()]
+                cells = self.column(idx)
+                min_square = cells[0].idx_square
+
+                for cell in cells:
+                    if cell.idx_square == min_square:
+                        square_choices[0] |= cell.choices
+                    elif (cell.idx_square - min_square) == 3:
+                        square_choices[1] |= cell.choices
+                    else:
+                        square_choices[2] |= cell.choices
+
+                square_unique = copy.deepcopy(square_choices)
+                for i in range(3):
+                    for j in range(3):
+                        if i == j:
+                            continue
+                        square_unique[i] -= square_choices[j]
+
+                for i in range(3):
+                    while len(square_unique[i]) > 0:
+                        value = square_unique[i].pop()
+                        if i == 0:
+                            idx_square = min_square
+                        elif i == 1:
+                            idx_square = min_square + 3
+                        else:
+                            idx_square = min_square + 6
+
+                        for c in self.square(idx_square):
+                            if c.idx_col != idx and value in c.choices:
+                                c.choices.remove(value)
+                                solved += 1
+
     def solve(self):
         """Решает судоку."""
         solved = 1
@@ -203,6 +312,9 @@ class Sudoku:
             unsolved_before = self.unsolved_cells
 
             self.solve_naked_pairs()
+            self.solve_hidden_pairs()
+            self.solve_intersection_removal()
+
             self.solve_lone_singles()
             if self.unsolved_cells == 0:
                 break
@@ -210,8 +322,6 @@ class Sudoku:
             self.solve_hidden_singles()
             if self.unsolved_cells == 0:
                 break
-
-            self.solve_hidden_pairs()
 
             solved = unsolved_before - self.unsolved_cells
 

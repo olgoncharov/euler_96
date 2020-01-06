@@ -187,3 +187,43 @@ class TestSudoku:
 
         assert sudoku.cells[4][7].choices == {3, 5}
         assert sudoku.cells[4][8].choices == {3, 5}
+
+    def test_solve_intersection_removal(self):
+
+        sudoku = Sudoku([
+            [0, 1, 7, 9, 0, 3, 6, 0, 0],
+            [0, 0, 0, 0, 8, 0, 0, 0, 0],
+            [9, 0, 0, 0, 0, 0, 5, 0, 7],
+            [0, 7, 2, 0, 1, 0, 4, 3, 0],
+            [0, 0, 0, 4, 0, 2, 0, 7, 0],
+            [0, 6, 4, 3, 7, 0, 2, 5, 0],
+            [7, 0, 1, 0, 0, 0, 0, 6, 5],
+            [0, 0, 0, 0, 3, 0, 0, 0, 0],
+            [0, 0, 5, 6, 0, 1, 7, 2, 0]
+        ])
+
+        sudoku.solve_intersection_removal()
+        assert sudoku.cells[1][0].choices == {2, 4, 5, 6}
+        assert sudoku.cells[1][1].choices == {2, 4, 5}
+        assert sudoku.cells[1][2].choices == {6}
+
+        sudoku = Sudoku([
+            [0, 1, 6, 0, 0, 7, 8, 0, 3],
+            [0, 9, 0, 8, 0, 0, 0, 0, 0],
+            [8, 7, 0, 0, 0, 1, 0, 6, 0],
+            [0, 4, 8, 0, 0, 0, 3, 0, 0],
+            [6, 5, 0, 0, 0, 9, 0, 8, 2],
+            [0, 3, 9, 0, 0, 0, 6, 5, 0],
+            [0, 6, 0, 9, 0, 0, 0, 2, 0],
+            [0, 8, 0, 0, 0, 2, 9, 3, 6],
+            [9, 2, 4, 6, 0, 0, 5, 1, 0]
+        ])
+
+        sudoku.solve_intersection_removal()
+        assert sudoku.cells[1][4].choices == {3, 5, 6}
+        assert sudoku.cells[2][3].choices == {3, 4, 5}
+        assert sudoku.cells[2][4].choices == {3, 4, 5, 9}
+        assert sudoku.cells[1][6].choices == {1, 2, 7}
+        assert sudoku.cells[2][6].choices == {2}
+        assert sudoku.cells[1][8].choices == {1, 5, 7}
+        assert sudoku.cells[2][8].choices == {5, 9}
