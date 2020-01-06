@@ -351,14 +351,16 @@ class Sudoku:
     def solve(self):
         """Решает судоку."""
         solved = 1
+        advanced = False
 
-        while solved:
+        while solved or advanced:
             unsolved_before = self.unsolved_cells
 
             self.solve_naked_pairs()
-            self.solve_hidden_pairs()
-            self.solve_intersection_removal()
-            self.solve_x_wing()
+            if advanced:
+                self.solve_hidden_pairs()
+                self.solve_intersection_removal()
+                self.solve_x_wing()
 
             self.solve_naked_singles()
             if self.unsolved_cells == 0:
@@ -369,6 +371,9 @@ class Sudoku:
                 break
 
             solved = unsolved_before - self.unsolved_cells
+
+            if solved == 0:
+                advanced = not advanced
 
 
 class Cell:

@@ -3,6 +3,20 @@ from typing import Set, Any
 import pytest
 from sudoku_solver import Cell, Sudoku
 
+def get_sudoku_examples():
+    """Читает из файла 50 головоломок судоку."""
+    examples = []
+    with open('p096_sudoku.txt', 'r') as f:
+        line = f.readline()
+        while line.startswith('Grid'):
+            matrix = [[int(ch) for ch in f.readline().strip()] for i in range(9)]
+            sudoku = Sudoku(matrix)
+            examples.append(sudoku)
+            line = f.readline()
+
+    return examples
+
+
 class TestCell:
 
     def test_init_empty(self, full_choices):
@@ -62,6 +76,8 @@ class TestSudoku:
         (8, [5, 0, 0, 0, 0, 9, 3, 0, 0])
     ]
 
+    examples_for_full_testing = get_sudoku_examples()
+    
     def test_init(self, init_sudoku, init_sudoku_choices):
         sudoku = Sudoku(init_sudoku)
         assert sudoku.unsolved_cells == 49
@@ -269,3 +285,15 @@ class TestSudoku:
         assert sudoku.cells[4][8].choices == {3, 8}
         assert sudoku.cells[8][3].choices == {3, 4, 5, 6, 8}
         assert sudoku.cells[8][8].choices == {3, 6, 8}
+
+    @pytest.mark.parametrize('sudoku', examples_for_full_testing)
+    def test_full_solving(self, sudoku):
+        sudoku.solve()
+        assert sudoku.unsolved_cells == 0
+
+        for cells in sudoku.houses():
+            reminder = {1, 2, 3, 4, 5, 6, 7, 8, 9}
+            for cell in cells:
+                assert cell.value in reminder
+                reminder.remove(cell.value)
+            assert len(reminder) == 0
