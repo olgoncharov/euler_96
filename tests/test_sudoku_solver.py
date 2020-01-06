@@ -227,3 +227,45 @@ class TestSudoku:
         assert sudoku.cells[2][6].choices == {2}
         assert sudoku.cells[1][8].choices == {1, 5, 7}
         assert sudoku.cells[2][8].choices == {5, 9}
+
+    def test_solve_x_wing(self):
+
+        sudoku = Sudoku([
+            [0, 0, 3, 8, 0, 0, 5, 1, 0],
+            [0, 0, 8, 7, 0, 0, 9, 3, 0],
+            [1, 0, 0, 3, 0, 5, 7, 2, 8],
+            [0, 0, 0, 2, 0, 0, 8, 4, 9],
+            [8, 0, 1, 9, 0, 6, 2, 5, 7],
+            [0, 0, 0, 5, 0, 0, 1, 6, 3],
+            [9, 6, 4, 1, 2, 7, 3, 8, 5],
+            [3, 8, 2, 6, 5, 9, 4, 7, 1],
+            [0, 1, 0, 4, 0, 0, 6, 9, 2]
+        ])
+
+        sudoku.solve_x_wing()
+        assert sudoku.cells[0][1].choices == {2, 7, 9}
+        assert sudoku.cells[1][1].choices == {2, 5}
+        assert sudoku.cells[0][4].choices == {6, 9}
+        assert sudoku.cells[1][4].choices == {1, 6}
+        assert sudoku.cells[5][1].choices == {2, 7, 9}
+        assert sudoku.cells[5][4].choices == {7, 8}
+
+        sudoku = Sudoku([
+            [0, 0, 0, 0, 0, 0, 0, 9, 4],
+            [7, 6, 0, 9, 1, 0, 0, 5, 0],
+            [0, 9, 0, 0, 0, 2, 0, 8, 1],
+            [0, 7, 0, 0, 5, 0, 0, 1, 0],
+            [0, 0, 0, 7, 0, 9, 0, 0, 0],
+            [0, 8, 0, 0, 3, 1, 0, 6, 7],
+            [2, 4, 0, 1, 0, 0, 0, 7, 0],
+            [0, 1, 0, 0, 9, 0, 0, 4, 5],
+            [9, 0, 0, 0, 0, 0, 1, 0, 0]
+        ])
+
+        sudoku.solve_x_wing()
+        assert sudoku.cells[4][1].choices == {3, 5}
+        assert sudoku.cells[4][2].choices == {1, 3, 4, 5, 6}
+        assert sudoku.cells[4][6].choices == {3, 4, 5, 8}
+        assert sudoku.cells[4][8].choices == {3, 8}
+        assert sudoku.cells[8][3].choices == {3, 4, 5, 6, 8}
+        assert sudoku.cells[8][8].choices == {3, 6, 8}

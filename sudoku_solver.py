@@ -304,6 +304,50 @@ class Sudoku:
                                 c.choices.remove(value)
                                 solved += 1
 
+    def solve_x_wing(self):
+        """Находит связанные пары и обновляет перечень кандидатов в ячейках."""
+
+        solved = 1
+
+        while solved:
+            solved = 0
+            row_counters = [dict() for i in range(9)]
+            col_counters = copy.deepcopy(row_counters)
+
+            for row in self.cells:
+                for cell in row:
+                    for value in cell.choices:
+                        row_counters[cell.idx_row].setdefault(value, [])
+                        col_counters[cell.idx_col].setdefault(value, [])
+                        row_counters[cell.idx_row][value].append(cell.idx_col)
+                        col_counters[cell.idx_col][value].append(cell.idx_row)
+
+            row_pairs = [{k for k,v in row_counters[i].items() if len(v) == 2} for i in range(9)]
+            col_pairs = [{k for k,v in col_counters[i].items() if len(v) == 2} for i in range(9)]
+
+            for i in range(9):
+                for j in range(i + 1, 9):
+                    # связанные пары по строкам
+                    common_pairs = row_pairs[i] & row_pairs[j]
+                    for value in common_pairs:
+                        if row_counters[i][value] == row_counters[j][value]:
+                            for idx_col in row_counters[i][value]:
+                                for cell in self.column(idx_col):
+                                    if cell.idx_row not in [i, j] and value in cell.choices:
+                                        cell.choices.remove(value)
+                                        solved += 1
+
+                    # связанные пары по столбцам
+                    common_pairs = col_pairs[i] & col_pairs[j]
+                    for value in common_pairs:
+                        if col_counters[i][value] == col_counters[j][value]:
+                            for idx_row in col_counters[i][value]:
+                                for cell in self.cells[idx_row]:
+                                    if cell.idx_col not in [i, j] and value in cell.choices:
+                                        cell.choices.remove(value)
+                                        solved += 1
+
+
     def solve(self):
         """Решает судоку."""
         solved = 1
@@ -314,6 +358,7 @@ class Sudoku:
             self.solve_naked_pairs()
             self.solve_hidden_pairs()
             self.solve_intersection_removal()
+            self.solve_x_wing()
 
             self.solve_lone_singles()
             if self.unsolved_cells == 0:
